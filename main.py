@@ -95,5 +95,5 @@ if not os.path.exists("pyinstaller.sh"): # Not in Main Directory
 app = QApplication(sys.argv)
 window = MainWindow()
 window.resize(599, 599)
-window.show()
+window.showMinimized()
 app.exec()
