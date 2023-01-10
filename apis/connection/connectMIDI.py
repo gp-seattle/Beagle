@@ -6,11 +6,12 @@ from PyQt6.QtWidgets import (
 )
 
 class ConnectMidiButton(QPushButton):
-    def __init__(self, config, midiOutput, midiVirtualOutput, address, idx, initAllowVirtual):
+    def __init__(self, config, midiOutput, midiVirtualOutput, logBox, address, idx, initAllowVirtual):
         super().__init__("Connect")
         self.config = config
         self.midiOutput = midiOutput
         self.midiVirtualOutput = midiVirtualOutput
+        self.logBox = logBox
         self.address = address
         self.idx = idx
         self.init(True, initAllowVirtual)
@@ -51,7 +52,7 @@ class ConnectMidiButton(QPushButton):
                 dlg.setText("Unable to connect to '" + self.address.currentText() + "' port")
                 dlg.exec()
         else:
-            self.midiOutput[self.idx] = MIDIOutput(None)
+            self.midiOutput[self.idx] = MIDIOutput(self.idx, None, None)
             self.address.setCurrentIndex(-1)
             self.address.invalid()
 
@@ -70,7 +71,7 @@ class ConnectMidiButton(QPushButton):
             self.address.connected()
             return True
 
-        self.midiOutput[self.idx] = MIDIOutput(self.address.currentText())
+        self.midiOutput[self.idx] = MIDIOutput(self.idx, self.address.currentText(), self.logBox)
 
         if init and self.address.currentText() == "":
             self.address.invalid()

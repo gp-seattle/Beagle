@@ -1,4 +1,3 @@
-
 from apis.connection.connectMIDI import ConnectMidiButton
 from apis.connection.listenMIDI import ListenMidiButton
 from apis.menu.About import About
@@ -17,8 +16,7 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 import sys
-from util.constants import MIDI_SERVER_NAME
-from util.customWidgets import AddressBox
+from util.customWidgets import AddressBox, LogBox
 from util.defaultMidi import MIDIVirtualPort
 
 class MainWindow(QMainWindow):
@@ -26,10 +24,13 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.config = config
+
+        self.logBox = LogBox()
+
         self.midiInput = {}
         self.midiOutput = {}
         self.midiVirtualOutput = {} # Key is port name
-        self.midiServer = MIDIVirtualPort(self.midiOutput)
+        self.midiServer = MIDIVirtualPort(self.midiOutput, self.logBox)
 
         self.saveCache = True
 
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow):
 
         vlayout = QVBoxLayout()
 
-        vlayout.addWidget(ListenMidiButton(self.config, self.midiInput, self.midiServer))
+        vlayout.addWidget(ListenMidiButton(self.config, self.midiInput, self.midiServer, self.logBox))
 
         vlayout.addWidget(QLabel("Destinations:"))
         
@@ -52,7 +53,7 @@ class MainWindow(QMainWindow):
             hlayout.addWidget(address)
             hlayout.addWidget(address.status)
 
-            hlayout.addWidget(ConnectMidiButton(self.config, self.midiOutput, self.midiVirtualOutput, address, idx, self.config["output"][idx]["virtual"] if idx in self.config["output"] else False))
+            hlayout.addWidget(ConnectMidiButton(self.config, self.midiOutput, self.midiVirtualOutput, self.logBox, address, idx, self.config["output"][idx]["virtual"] if idx in self.config["output"] else False))
 
             scrollLayout.addLayout(hlayout)
         
@@ -62,6 +63,9 @@ class MainWindow(QMainWindow):
         scrollArea.setWidget(scrollWidget)
         scrollArea.setWidgetResizable(True)
         vlayout.addWidget(scrollArea)
+
+        vlayout.addWidget(QLabel("Log:"))
+        vlayout.addWidget(self.logBox)
 
         widget = QWidget()
         widget.setLayout(vlayout)

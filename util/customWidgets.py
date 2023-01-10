@@ -1,7 +1,31 @@
+from datetime import datetime
+from PyQt6.QtCore import (
+    pyqtSignal,
+    pyqtSlot,
+    Qt,
+)
 from PyQt6.QtWidgets import (
     QComboBox,
     QLabel,
+    QTextEdit,
 )
+
+class LogBox(QTextEdit):
+    addLine = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+
+        self.setFixedHeight(150)
+        self.setReadOnly(True)
+        self.setLineWrapMode(self.LineWrapMode.NoWrap)
+        self.setTabStopDistance(40)
+
+        self.addLine.connect(self.onAddLine)
+
+    @pyqtSlot(str)
+    def onAddLine(self, text):
+        super().append(str(datetime.now()) + "\t" + text)
 
 class AddressBox(QComboBox):
     def __init__(self, initVal, options = None):

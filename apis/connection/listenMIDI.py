@@ -14,22 +14,23 @@ from util.customWidgets import AddressBox
 from util.defaultMidi import MIDIInput
 
 class ListenMidiButton(QPushButton):
-    def __init__(self, config, midiInput, midiServer):
+    def __init__(self, config, midiInput, midiServer, logBox):
         super().__init__("Specify MIDI ports to listen to")
         self.midiInput = midiInput
         self.midiServer = midiServer
+        self.logBox = logBox
         self.pressed.connect(self.clicked)
 
         for port in config["input"]:
-            self.midiInput[port] = MIDIInput(self.midiServer, port)
+            self.midiInput[port] = MIDIInput(self.midiServer, port, self.logBox)
             self.midiInput[port].open_input()
 
     def clicked(self):
-        MidiInputDialog(self.midiInput, self.midiServer).exec()
+        MidiInputDialog(self.midiInput, self.midiServer, self.logBox).exec()
         self.setDown(False)
 
 class MidiInputDialog(QDialog):
-    def __init__(self, midiInput, midiServer):
+    def __init__(self, midiInput, midiServer, logBox):
         super().__init__()
 
         vlayout = QVBoxLayout()
@@ -47,7 +48,7 @@ class MidiInputDialog(QDialog):
             else:
                 address.invalid()
 
-            hlayout.addWidget(ConnectRemoveButton(midiInput, midiServer, address))
+            hlayout.addWidget(ConnectRemoveButton(midiInput, midiServer, logBox, address))
 
             scrollLayout.addLayout(hlayout)
         
@@ -57,17 +58,18 @@ class MidiInputDialog(QDialog):
         scrollArea.setWidget(scrollWidget)
         scrollArea.setWidgetResizable(True)
 
-        vlayout.addWidget(AddLine(scrollLayout, midiInput, midiServer))
+        vlayout.addWidget(AddLine(scrollLayout, midiInput, midiServer, logBox))
         vlayout.addWidget(scrollArea)
 
         self.setLayout(vlayout)
         self.setMinimumSize(599, 380)
 
 class ConnectRemoveButton(QPushButton):
-    def __init__(self, midiInput, midiServer, address):
+    def __init__(self, midiInput, midiServer, logBox, address):
         super().__init__("Connect")
         self.midiInput = midiInput
         self.midiServer = midiServer
+        self.logBox = logBox
         self.address = address
         
         self.currentAddress = address.currentText()
@@ -96,7 +98,7 @@ class ConnectRemoveButton(QPushButton):
             del self.midiInput[self.currentAddress]
 
         if self.isConnect:
-            self.midiInput[self.address.currentText()] = MIDIInput(self.midiServer, self.address.currentText())
+            self.midiInput[self.address.currentText()] = MIDIInput(self.midiServer, self.address.currentText(), self.logBox)
 
             if (self.midiInput[self.address.currentText()].open_input()):
                 self.address.connected()
@@ -126,11 +128,12 @@ class ConnectRemoveButton(QPushButton):
         self.setDown(False)
 
 class AddLine(QPushButton):
-    def __init__(self, scrollLayout, midiInput, midiServer):
+    def __init__(self, scrollLayout, midiInput, midiServer, logBox):
         super().__init__("Add Line")
         self.scrollLayout = scrollLayout
         self.midiInput = midiInput
         self.midiServer = midiServer
+        self.logBox = logBox
         self.pressed.connect(self.clicked)
 
     def clicked(self):
@@ -141,7 +144,7 @@ class AddLine(QPushButton):
         hlayout.addWidget(address.status)
         address.invalid()
 
-        hlayout.addWidget(ConnectRemoveButton(self.midiInput, self.midiServer, address))
+        hlayout.addWidget(ConnectRemoveButton(self.midiInput, self.midiServer, self.logBox, address))
 
         self.scrollLayout.addLayout(hlayout)
 

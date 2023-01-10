@@ -21,3 +21,7 @@ Initial Commit
 ### v0.1.0
 
 Create virtual output ports for ports that do not already exist.
+
+### v0.2.0
+
+Create log textbox, which logs connections and incoming and outgoing messages.
