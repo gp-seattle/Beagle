@@ -38,7 +38,7 @@ class MidiInputDialog(QDialog):
         for port in midiInput:
             hlayout = QHBoxLayout()
 
-            address = AddressBox(port, midiServer.get_input_names() - set([MIDI_SERVER_NAME]))
+            address = AddressBox(port, midiServer.get_input_names())
             hlayout.addWidget(address)
             hlayout.addWidget(address.status)
 
@@ -103,14 +103,14 @@ class ConnectRemoveButton(QPushButton):
 
                 dlg = QMessageBox(self)
                 dlg.setWindowTitle("MIDI Connection")
-                dlg.setText("Listening to " + self.address.currentText() + " port")
+                dlg.setText("Listening to '" + self.address.currentText() + "' port")
                 dlg.exec()
             else:
                 self.address.invalid()
 
                 dlg = QMessageBox(self)
                 dlg.setWindowTitle("MIDI Connection")
-                dlg.setText("Unable to listen to " + self.address.currentText() + " port")
+                dlg.setText("Unable to listen to '" + self.address.currentText() + "' port")
                 dlg.exec()
         else:
             self.address.setCurrentIndex(-1)
@@ -118,7 +118,7 @@ class ConnectRemoveButton(QPushButton):
 
             dlg = QMessageBox(self)
             dlg.setWindowTitle("MIDI Connection")
-            dlg.setText("Stopped Listening to " + self.currentAddress + " port")
+            dlg.setText("Stopped Listening to '" + self.currentAddress + "' port")
             dlg.exec()
 
         self.currentAddress = self.address.currentText()
@@ -136,7 +136,7 @@ class AddLine(QPushButton):
     def clicked(self):
         hlayout = QHBoxLayout()
 
-        address = AddressBox("", self.midiServer.get_input_names() - set([MIDI_SERVER_NAME]))
+        address = AddressBox("", self.midiServer.get_input_names())
         hlayout.addWidget(address)
         hlayout.addWidget(address.status)
         address.invalid()

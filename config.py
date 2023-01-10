@@ -3,7 +3,7 @@ config = {
         "Network Session 1"
     ],
     "output": {
-        6: "Beagle",
-        14: "USB MIDI Interface"
+        6: {"name": "ProPre", "virtual": True},
+        14: {"name": "USB MIDI Interface", "virtual": False}
     }
 }

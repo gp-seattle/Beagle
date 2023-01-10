@@ -1,3 +1,4 @@
+from util.constants import MIDI_SERVER_NAME
 from util.defaultMidi import MIDIOutput
 from PyQt6.QtWidgets import (
     QMessageBox,
@@ -5,13 +6,14 @@ from PyQt6.QtWidgets import (
 )
 
 class ConnectMidiButton(QPushButton):
-    def __init__(self, config, midiOutput, address, idx):
+    def __init__(self, config, midiOutput, midiVirtualOutput, address, idx, initAllowVirtual):
         super().__init__("Connect")
         self.config = config
         self.midiOutput = midiOutput
+        self.midiVirtualOutput = midiVirtualOutput
         self.address = address
         self.idx = idx
-        self.init(True)
+        self.init(True, initAllowVirtual)
 
         self.currentAddress = address.currentText()
         self.isConnect = True
@@ -25,7 +27,7 @@ class ConnectMidiButton(QPushButton):
         self.address.onChange(name) # Parent Function
         self.setEnabled(name != "")
 
-        if name == self.currentAddress and self.currentAddress != "" and self.midiOutput[self.idx].connected():
+        if name == self.currentAddress and self.currentAddress != "":
             self.isConnect = False
             self.setText("Clear")
         else:
@@ -37,30 +39,48 @@ class ConnectMidiButton(QPushButton):
             if (self.init()):
                 dlg = QMessageBox(self)
                 dlg.setWindowTitle("MIDI Connection")
-                dlg.setText("Connected to " + self.currentAddress + " port")
+                dlg.setText(
+                    "Created virtual port '" + MIDI_SERVER_NAME + " - " + self.address.currentText() + "' port"
+                    if self.midiOutput[self.idx].isVirtual
+                    else "Connected to '" + self.address.currentText() + "' port"
+                )
                 dlg.exec()
             else:
                 dlg = QMessageBox(self)
                 dlg.setWindowTitle("MIDI Connection")
-                dlg.setText("Unable to connect to " + self.currentAddress + " port")
+                dlg.setText("Unable to connect to '" + self.address.currentText() + "' port")
                 dlg.exec()
         else:
             self.midiOutput[self.idx] = MIDIOutput(None)
             self.address.setCurrentIndex(-1)
             self.address.invalid()
+
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("MIDI Connection")
+            dlg.setText("Stopped sending messages to '" + self.address.currentText() + "' port")
+            dlg.exec()
         
         self.currentAddress = self.address.currentText()
         self.updateButton(self.currentAddress)
         self.setDown(False)
 
-    def init(self, init = False):
+    def init(self, init = False, allowVirtual = True):
+        if self.address.currentText() in self.midiVirtualOutput:
+            self.midiOutput[self.idx] = self.midiVirtualOutput[self.address.currentText()]
+            self.address.connected()
+            return True
+
         self.midiOutput[self.idx] = MIDIOutput(self.address.currentText())
 
         if init and self.address.currentText() == "":
             self.address.invalid()
             return False
-        elif (self.midiOutput[self.idx].open_output()):
+        elif (self.midiOutput[self.idx].open_output(allowVirtual)):
             self.address.connected()
+
+            if self.midiOutput[self.idx].isVirtual:
+                self.midiVirtualOutput[self.address.currentText()] = self.midiOutput[self.idx]
+
             return True
         else:
             self.address.invalid()

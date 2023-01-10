@@ -3,8 +3,6 @@ import mido
 
 backend = mido.Backend("mido.backends.rtmidi")
 
-print(sys.argv)
-
 if len(sys.argv) > 1:
     output = backend.open_output(sys.argv[1])
     print("Connected to MIDI port " + sys.argv[1])

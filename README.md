@@ -12,7 +12,7 @@ Alternatively, specify ports to explicitly listen to using the Listen button at 
 
 For each of the 16 valid MIDI channels, specify what the target output port is. Input messages will then be routed to these target output ports.
 
-You are able to specify `Beagle` as a output port, so that listeners of the `Beagle` endpoint will recieve the message.
+A virtual output port will be created if the specified port doesn't exist. The virtual port will be prefixed by `Beagle - `.
 
 ## Dependencies:
 

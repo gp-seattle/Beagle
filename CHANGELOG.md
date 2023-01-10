@@ -13,3 +13,11 @@ A **Minor Version** iteration means some sort of backwards *compatible* major fe
 A **Patch Version** iteration means some sort of backwards *compatible* minor feature or bug fix has been made.
 
 (See https://semver.org)
+
+### v0.0.1
+
+Initial Commit
+
+### v0.1.0
+
+Create virtual output ports for ports that do not already exist.

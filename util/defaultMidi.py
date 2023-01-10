@@ -9,11 +9,19 @@ class MIDIOutput(mido.Backend):
         super().__init__("mido.backends.rtmidi")
         self.port = port
         self.output = None
+        self.isVirtual = None
     
-    def open_output(self):
+    def open_output(self, allowVirtual = True):
         try:
-            self.output = super().open_output(self.port)
-            print("Connected to MIDI at " + self.port)
+            if self.port not in super().get_output_names() and allowVirtual:
+                # Virtual Port
+                self.output = super().open_output(MIDI_SERVER_NAME + " - " + self.port, True)
+                self.isVirtual = True
+                print("Created Virutal MIDI Output at " + self.port)
+            else:
+                self.output = super().open_output(self.port)
+                self.isVirtual = False
+                print("Connected to MIDI at " + self.port)
         except Exception as ex:
             print(ex)
             print("Failed to connect to MIDI at " + self.port)
@@ -65,24 +73,31 @@ class MIDIVirtualPort(mido.Backend):
         super().__init__("mido.backends.rtmidi")
         self.midiOutput = midiOutput
 
-        self.ioPort = super().open_ioport(MIDI_SERVER_NAME, True)
-        self.ioPort.input.callback = self.callbackFunction
+        self.input = super().open_input(MIDI_SERVER_NAME, True)
+        self.input.callback = self.callbackFunction
         print("Created MIDI IO Port " + MIDI_SERVER_NAME)
     
     def callbackFunction(self, message):
         if (message.channel + 1) in self.midiOutput and self.midiOutput[message.channel + 1].connected():
-            if self.midiOutput[message.channel + 1].port == MIDI_SERVER_NAME:
-                self.ioPort.output.send(message)
-            else:
-                self.midiOutput[message.channel + 1].send(message)
+            self.midiOutput[message.channel + 1].send(message)
 
     def get_input_names(self):
-        return set(super().get_input_names())
+        names = []
+        for name in set(super().get_input_names()):
+            if MIDI_SERVER_NAME + " - " not in name:
+                names.append(name)
+
+        return names
     
     def get_output_names(self):
-        return set(super().get_output_names())
+        names = []
+        for name in set(super().get_output_names()):
+            if name != MIDI_SERVER_NAME:
+                names.append(name)
+
+        return names
     
     def close(self):
-        if self.ioPort is not None:
-            self.ioPort.close()
+        if self.input is not None:
+            self.input.close()
             print("Stopped listening to MIDI Port " + MIDI_SERVER_NAME)

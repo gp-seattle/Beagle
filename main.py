@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
     QWidget
 )
 import sys
+from util.constants import MIDI_SERVER_NAME
 from util.customWidgets import AddressBox
 from util.defaultMidi import MIDIVirtualPort
 
@@ -27,6 +28,7 @@ class MainWindow(QMainWindow):
         self.config = config
         self.midiInput = {}
         self.midiOutput = {}
+        self.midiVirtualOutput = {} # Key is port name
         self.midiServer = MIDIVirtualPort(self.midiOutput)
 
         self.saveCache = True
@@ -46,11 +48,11 @@ class MainWindow(QMainWindow):
             label.setFixedWidth(100)
             hlayout.addWidget(label)
             
-            address = AddressBox(self.config["output"][idx] if idx in self.config["output"] else "", self.midiServer.get_output_names())
+            address = AddressBox(self.config["output"][idx]["name"] if idx in self.config["output"] else "", self.midiServer.get_output_names())
             hlayout.addWidget(address)
             hlayout.addWidget(address.status)
 
-            hlayout.addWidget(ConnectMidiButton(self.config, self.midiOutput, address, idx))
+            hlayout.addWidget(ConnectMidiButton(self.config, self.midiOutput, self.midiVirtualOutput, address, idx, self.config["output"][idx]["virtual"] if idx in self.config["output"] else False))
 
             scrollLayout.addLayout(hlayout)
         
