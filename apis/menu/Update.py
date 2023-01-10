@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QVBoxLayout,
 )
-import subprocess
 
 class UpdateApp(QAction):
     def __init__(self, parent):
@@ -29,16 +28,6 @@ class UpdateDialog(QDialog):
             isApp = True
         else:
             exStr = "Not in valid Directory. To update, app needs to be in dist/ directory of a properly set up repo."
-
-        if exStr is None:
-            try:
-                subprocess.check_output("git fetch", shell = True, stderr = subprocess.STDOUT, timeout = 10.0)
-            except subprocess.CalledProcessError as ex:
-                exStr = ex.output.decode("utf-8")
-            except subprocess.TimeoutExpired as ex:
-                exStr = "Timed out waiting to fetch latest code. Check Internet Connection."
-            except Exception as ex:
-                exStr = str(ex)
 
         if exStr is None:
             vlayout = QVBoxLayout()
