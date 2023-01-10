@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Other
+.DS_Store
+.vscode
+
+# App Installation
+build/
+dist/
+
+# Custom File Suffixes
+*.cache
+*.log
